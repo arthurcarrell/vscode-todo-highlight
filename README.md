@@ -1,3 +1,7 @@
+Arthur Changes
+===
+Added padding and hides semicolons (this change wasn't possible with config files)
+
 VSCODE-TODO-HIGHLIGHT
 ===
 
