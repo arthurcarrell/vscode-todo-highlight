@@ -9,6 +9,10 @@ var util = require('./util');
 var window = vscode.window;
 var workspace = vscode.workspace;
 
+var HIDDEN_COLON_DEC = window.createTextEditorDecorationType({
+    color: 'transparent'
+});
+
 function activate(context) {
 
     var timeout = null;
@@ -17,6 +21,7 @@ function activate(context) {
     var workspaceState = context.workspaceState;
 
     var settings = workspace.getConfiguration('todohighlight');
+    
 
     init(settings);
 
@@ -85,9 +90,14 @@ function activate(context) {
 
         var text = activeEditor.document.getText();
         var mathes = {}, match;
+        var colonRanges = [];
         while (match = pattern.exec(text)) {
             var startPos = activeEditor.document.positionAt(match.index);
             var endPos = activeEditor.document.positionAt(match.index + match[0].length);
+
+            if (match.index > 0 && text[match.index - 1] == ' ') {
+                startPos = activeEditor.document.positionAt(match.index-1);
+            }
             var decoration = {
                 range: new vscode.Range(startPos, endPos)
             };
@@ -103,6 +113,13 @@ function activate(context) {
                 mathes[matchedValue] = [decoration];
             }
 
+            // arthur change
+            if (match[0].slice(-1) === ':') {
+                // hide the colon by setting it to the background color
+                var colonStart = activeEditor.document.positionAt(match.index + match[0].length-1);
+                colonRanges.push(new vscode.Range(colonStart, endPos));
+            }
+
             if (keywordsPattern.trim() && !decorationTypes[matchedValue]) {
                 decorationTypes[matchedValue] = window.createTextEditorDecorationType(styleForRegExp);
             }
@@ -116,6 +133,11 @@ function activate(context) {
             var decorationType = decorationTypes[v];
             activeEditor.setDecorations(decorationType, rangeOption);
         })
+
+        activeEditor.setDecorations(
+            HIDDEN_COLON_DEC,
+            settings.get('isEnable') ? colonRanges : []
+        );
     }
 
     function init(settings) {

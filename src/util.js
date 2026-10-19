@@ -27,6 +27,8 @@ var DEFAULT_STYLE = {
     backgroundColor: "#ffeb3b",
 };
 
+
+
 function getAssembledData(keywords, customDefaultStyle, isCaseSensitive) {
     var result = {}
     keywords.forEach((v) => {
